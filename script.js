@@ -1,51 +1,47 @@
-//your code here
-const apiUrl = 'https://randomuser.me/api/';
+const endpoint = 'https://randomuser.me/api/';
 
-let fullName;
-let image;
-let age;
-let email;
-let phone;
-
+// Fetch a random user from the API
 async function getUser() {
   try {
-    const response = await fetch(apiUrl);
+    const response = await fetch(endpoint);
     const data = await response.json();
     const user = data.results[0];
-
-    // Extract relevant info from the user
-    fullName = `${user.name.first} ${user.name.last}`;
-    image = user.picture.large;
-    age = user.dob.age;
-    email = user.email;
-    phone = user.phone;
-
-    // Display full name and image
-    const nameElem = document.getElementById('name');
-    nameElem.textContent = fullName;
-    const imageElem = document.getElementById('image');
-    imageElem.src = image;
+    return user;
   } catch (error) {
     console.error(error);
   }
 }
 
-// Initial call to get a user
-getUser();
+// Update the page with the user's information
+async function displayUser() {
+  const user = await getUser();
 
-// Add click event listeners to the buttons
-document.getElementById('age').addEventListener('click', () => {
-  const infoElem = document.getElementById('additional-info');
-  infoElem.textContent = `Age: ${age}`;
-});
-document.getElementById('email').addEventListener('click', () => {
-  const infoElem = document.getElementById('additional-info');
-  infoElem.textContent = `Email: ${email}`;
-});
-document.getElementById('phone').addEventListener('click', () => {
-  const infoElem = document.getElementById('additional-info');
-  infoElem.textContent = `Phone: ${phone}`;
-});
+  // Display the user's name and image
+  const name = `${user.name.first} ${user.name.last}`;
+  document.getElementById('name').innerHTML = name;
+  document.getElementById('image').src = user.picture.large;
 
-// Add a click event listener to the "getUser" button
-document.getElementById('getUser').addEventListener('click', getUser);
+  // Add event listeners to the buttons
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach(button => {
+    button.addEventListener('click', () => {
+      const attribute = button.getAttribute('data-attr');
+      let value;
+      if (attribute === 'age') {
+        // Calculate the age from the date of birth
+        const dob = new Date(user.dob.date);
+        const today = new Date();
+        value = today.getFullYear() - dob.getFullYear();
+      } else {
+        value = user[attribute];
+      }
+      document.getElementById('additional-info').innerHTML = value;
+    });
+  });
+}
+
+// Add an event listener to the "Get User" button
+document.getElementById('getUser').addEventListener('click', displayUser);
+
+// Display the initial user
+displayUser();
