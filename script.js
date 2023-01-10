@@ -1,9 +1,9 @@
-const endpoint = 'https://randomuser.me/api/';
+const url = 'https://randomuser.me/api/';
 
 // Fetch a random user from the API
 async function getUser() {
   try {
-    const response = await fetch(endpoint);
+    const response = await fetch(url);
     const data = await response.json();
     const user = data.results[0];
     return user;
